@@ -69,7 +69,7 @@ pm2 startup
 
 Các nền tảng chạy **Node** được: build = `npm run build`, start = `node server/index.js`, root = thư mục `ophim-web`.
 
-- **Railway:** Kết nối repo Git, root directory = `ophim-web` (hoặc monorepo chọn thư mục đó). Build command: `npm ci && npm run build`. Start command: `node server/index.js`. Set env: `PORT` (Railway tự gán), `OPHIM_BASE_URL`, `IMAGE_BASE_URL` (tùy chọn).
+- **Railway (bắt buộc):** Repo có app nằm trong thư mục `ophim-web`, nên trong **Railway Dashboard** → **Service** → **Settings** → **Root Directory** phải đặt là `ophim-web`. Nếu không, Railpack sẽ build ở thư mục gốc và báo "No start command was found". Sau khi đặt xong, Redeploy. Build/start dùng mặc định: `npm run build` và `node server/index.js` (đã có trong `package.json`). Biến môi trường: `PORT` (Railway tự gán), `OPHIM_BASE_URL`, `IMAGE_BASE_URL` (tùy chọn).
 - **Render (Web Service):** Tương tự: Build = `npm ci && npm run build`, Start = `node server/index.js`, thêm env `PORT` (Render tự inject), `OPHIM_BASE_URL`, `IMAGE_BASE_URL`.
 - **Fly.io:** Dùng Dockerfile có sẵn: `fly launch`, `fly deploy`. Port 5000 đã expose trong Dockerfile.
 
