@@ -49,10 +49,20 @@ app.get(`${prefix}/image`, async (req, res) => {
   }
 });
 
-const streamHeaders = {
-  'User-Agent': config.externalApi?.headers?.['User-Agent'] || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-  Referer: (config.externalApi?.headers?.Referer || config.externalApi?.baseUrl || 'https://ophim1.com') + '/',
-};
+const defaultReferer = (config.externalApi?.headers?.Referer || config.externalApi?.baseUrl || 'https://ophim1.com').replace(/\/$/, '') + '/';
+function getStreamHeaders(streamUrl) {
+  let referer = defaultReferer;
+  if (streamUrl && (streamUrl.startsWith('http://') || streamUrl.startsWith('https://'))) {
+    try {
+      const u = new URL(streamUrl);
+      referer = u.origin + '/';
+    } catch (_) {}
+  }
+  return {
+    'User-Agent': config.externalApi?.headers?.['User-Agent'] || 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    Referer: referer,
+  };
+}
 
 /** Thử nhiều base URL cho stream (path tương đối) — OPhim có thể dùng domain khác cho CDN. */
 function getStreamBases() {
@@ -137,7 +147,7 @@ app.get(`${prefix}/stream`, async (req, res) => {
             url: tryUrl,
             timeout: 8000,
             validateStatus: (s) => s === 200,
-            headers: streamHeaders,
+            headers: getStreamHeaders(tryUrl),
             maxRedirects: 5,
           });
           if (probe.status === 200) {
@@ -169,7 +179,7 @@ app.get(`${prefix}/stream`, async (req, res) => {
         responseType: 'text',
         timeout: 30000,
         validateStatus: (s) => s === 200,
-        headers: streamHeaders,
+        headers: getStreamHeaders(url),
         maxRedirects: 5,
       });
       const pathForRewrite = currentPath || url.replace(/^https?:\/\/[^/]+/, '').replace(/^\//, '');
@@ -185,7 +195,7 @@ app.get(`${prefix}/stream`, async (req, res) => {
         responseType: 'stream',
         timeout: 60000,
         validateStatus: (s) => s === 200,
-        headers: streamHeaders,
+        headers: getStreamHeaders(url),
         maxRedirects: 5,
       });
       res.setHeader('Content-Type', response.headers['content-type'] || 'video/mp2t');

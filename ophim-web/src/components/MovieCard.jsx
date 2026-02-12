@@ -5,6 +5,13 @@ import { api } from '../services/api';
 
 const PLACEHOLDER_IMG = 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" width="100" height="150" viewBox="0 0 100 150"%3E%3Crect fill="%23374151" width="100" height="150"/%3E%3C/svg%3E';
 
+const NEW_DAYS = 14; // Phim cập nhật trong N ngày gần đây → hiện tag "Mới"
+function isNewMovie(m) {
+  const ts = m?.modified?.time ?? (m?.updatedAt ? new Date(m.updatedAt).getTime() : 0);
+  if (!ts) return false;
+  return Date.now() - ts <= NEW_DAYS * 24 * 60 * 60 * 1000;
+}
+
 const MovieCard = ({ movie }) => {
   const slug = movie?.slug ?? movie?.id ?? '';
   const [imgSrc, setImgSrc] = React.useState(() => api.getImageUrl(movie.thumb_url || movie.poster_url || '') || PLACEHOLDER_IMG);
@@ -34,12 +41,21 @@ const MovieCard = ({ movie }) => {
             {movie.quality}
           </span>
         )}
+        {isNewMovie(movie) && (
+          <span className="absolute bottom-2 left-2 bg-emerald-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-md uppercase tracking-wide shadow-lg">
+            Mới
+          </span>
+        )}
         {movie.lang && (
           <span className="absolute top-2 right-2 bg-black/70 text-white text-[10px] font-medium px-2 py-0.5 rounded-md backdrop-blur-sm">
             {movie.lang}
           </span>
         )}
-        {movie.episode_current === '0' || movie.episode_current === 'Trailer' ? (
+        {movie.episode_current === 'Trailer' ? (
+          <span className="absolute bottom-2 right-2 bg-amber-500/90 text-gray-900 text-[10px] font-bold px-2 py-0.5 rounded-md shadow-lg">
+            Trailer
+          </span>
+        ) : movie.episode_current === '0' ? (
           <span className="absolute bottom-2 right-2 bg-amber-500/90 text-gray-900 text-[10px] font-bold px-2 py-0.5 rounded-md shadow-lg">
             Sắp chiếu
           </span>
