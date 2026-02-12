@@ -1,0 +1,10 @@
+{
+  "name": "ryan-movie-root",
+  "private": true,
+  "scripts": {
+    "dev": "npm run dev --prefix ophim-web",
+    "server": "npm run server --prefix ophim-web",
+    "dev:all": "npm run dev:all --prefix ophim-web",
+    "build": "npm run build --prefix ophim-web"
+  }
+}
